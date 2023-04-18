@@ -1,4 +1,7 @@
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 
 class BasePage():
     def __init__(self, browser, url, timeout=10):
@@ -15,3 +18,6 @@ class BasePage():
         except NoSuchElementException:
             return False
         return True
+
+    def wait_presence(self, how, what):
+        WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((how, what)))
