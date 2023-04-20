@@ -17,3 +17,14 @@ class ProductPageLocators():
     PRICE = (By.CSS_SELECTOR, 'article div p')
     PRICE_OF_BASKET = (By.CSS_SELECTOR, '#messages :nth-child(3) div strong')
 
+
+class BasePageLocators():
+    LOGIN_LINK = (By.CSS_SELECTOR, "#login_link")
+    LOGIN_LINK_INVALID = (By.CSS_SELECTOR, "#login_link_inc")
+    BASKET_BTN = (By.CSS_SELECTOR, '.basket-mini span a')
+
+
+class BasketPageLocators():
+    EMPTY_BASKET_MSG = (By.CSS_SELECTOR, '#content_inner > p')
+    PRODUCT_IN_BASKET = (By.CSS_SELECTOR, '.basket-items')
+    LANG = (By.CSS_SELECTOR, '#content_inner a')
