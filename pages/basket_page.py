@@ -1,5 +1,6 @@
 from .base_page import BasePage
 from .locators import BasketPageLocators
+from selenium.common.exceptions import NoSuchElementException
 
 
 class BasketPage(BasePage):
@@ -7,12 +8,18 @@ class BasketPage(BasePage):
         assert self.is_not_element_present(*BasketPageLocators.PRODUCT_IN_BASKET), \
             "Basket is not empty"
 
-    def empty_basket_msg(self):
-        msg = self.browser.find_element(*BasketPageLocators.EMPTY_BASKET_MSG).text
-        shopping_link = self.browser.find_element(*BasketPageLocators.LANG).text
-        msg = msg.split(f' {shopping_link}')[0]
-        print(msg)
-        return msg
+    def check_message_in_all_languages(self, message_options, language, msg):
+        assert language in message_options and message_options.get(language) == msg, "Error in the text message"
+
+    def validation_empty_basket_msg(self, message_options):
+        try:
+            msg = self.browser.find_element(*BasketPageLocators.EMPTY_BASKET_MSG).text
+            shopping_link = self.browser.find_element(*BasketPageLocators.LANG).text
+            msg = msg.split(f' {shopping_link}')[0]
+            lang = self.get_language()
+            self.check_message_in_all_languages(message_options, lang, msg)
+        except NoSuchElementException:
+            'Empty basket msg not found'
 
     def get_language(self):
         elem = self.browser.find_element(*BasketPageLocators.LANG)

@@ -46,3 +46,11 @@ class ProductPage(BasePage):
     def success_message_should_disappear(self):
         assert self.is_disappeared(*ProductPageLocators.PRODUCT_NAME_ALERT), \
             'Success message is disappear, but should not be'
+
+    def product_validation_check(self):
+        selected_product = self.get_product_name()
+        product_in_the_basket = self.get_product_name_added_to_basket()
+        price_of_product = self.get_price_of_product()
+        price_of_basket = self.get_price_of_basket()
+        assert selected_product == product_in_the_basket and price_of_product == price_of_basket, \
+            f'was added to basket not {selected_product} or price_of_basket != price_of_product'

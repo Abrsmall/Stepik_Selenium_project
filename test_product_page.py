@@ -1,8 +1,10 @@
 import pytest
 from .pages.product_page import ProductPage
 from .pages.basket_page import BasketPage
+from .pages.login_page import LoginPage
 
 
+@pytest.mark.need_review
 @pytest.mark.parametrize('link', [
     "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer0",
     "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer1",
@@ -21,13 +23,7 @@ def test_guest_can_add_product_to_basket(browser, link):
     page.open()
     page.add_to_basket()
     page.solve_quiz_and_get_code()
-    product_name = page.get_product_name()
-    product_in_basket = page.get_product_name_added_to_basket()
-    price_of_product = page.get_price_of_product()
-    price_of_basket = page.get_price_of_basket()
-
-    assert product_name == product_in_basket and price_of_product == price_of_basket, \
-        f'was added to basket not {product_name} or price_of_basket != price_of_product'
+    page.product_validation_check()
 
 
 def test_guest_cant_see_success_message_after_adding_product_to_basket(browser):
@@ -60,6 +56,7 @@ def test_guest_should_see_login_link_on_product_page(browser):
     page.should_be_login_link()
 
 
+@pytest.mark.need_review
 def test_guest_can_go_to_login_page_from_product_page(browser):
     link = "http://selenium1py.pythonanywhere.com/en-gb/catalogue/the-city-and-the-stars_95/"
     page = ProductPage(browser, link)
@@ -67,8 +64,9 @@ def test_guest_can_go_to_login_page_from_product_page(browser):
     page.go_to_login_page()
 
 
+@pytest.mark.need_review
 def test_guest_cant_see_product_in_basket_opened_from_product_page(browser):
-    languages = {
+    message_options = {
         "ar": "سلة التسوق فارغة",
         "ca": "La seva cistella està buida.",
         "cs": "Váš košík je prázdný.",
@@ -96,7 +94,28 @@ def test_guest_cant_see_product_in_basket_opened_from_product_page(browser):
     page.open()
     page.go_to_basket_page()
     page.should_not_be_product_in_basket()
-    lang = page.get_language()
-    msg = page.empty_basket_msg()
-    assert lang in languages and languages.get(lang) == msg, "Error in the text message"
+    page.validation_empty_basket_msg(message_options)
 
+
+class TestUserAddToBasketFromProductPage():
+    @pytest.fixture(scope='function', autouse=True)
+    def setup(self, browser):
+        link = 'https://selenium1py.pythonanywhere.com/en-gb/accounts/login/'
+        page = LoginPage(browser, link)
+        page.open()
+        page.register_new_user(page.get_random_email(), page.get_random_pass())
+        page.should_be_authorized_user()
+
+    @pytest.mark.need_review
+    def test_user_can_add_product_to_basket(self, browser):
+        link = 'http://selenium1py.pythonanywhere.com/en-gb/catalogue/coders-at-work_207/'
+        page = ProductPage(browser, link)
+        page.open()
+        page.add_to_basket()
+        page.product_validation_check()
+
+    def test_user_cant_see_success_message(self, browser):
+        link = 'http://selenium1py.pythonanywhere.com/ru/catalogue/the-shellcoders-handbook_209/'
+        page = ProductPage(browser, link, 0)
+        page.open()
+        page.should_not_be_success_message()
